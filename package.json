@@ -21,6 +21,13 @@
       }
     ],
     "menus": {
+      "scm/sourceControl/title": [
+        {
+          "command": "undoLastCommit.undo",
+          "when": "scmProvider == git",
+          "group": "navigation"
+        }
+      ],
       "scm/title": [
         {
           "command": "undoLastCommit.undo",

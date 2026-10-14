@@ -1,32 +1,44 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
+import * as path from 'path';
 
 /**
  * 激活扩展
  */
 export function activate(context: vscode.ExtensionContext) {
-  const disposable = vscode.commands.registerCommand('undoLastCommit.undo', async () => {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders || workspaceFolders.length === 0) {
-      vscode.window.showErrorMessage('没有打开的工作区，无法执行撤销提交。');
-      return;
+  const disposable = vscode.commands.registerCommand('undoLastCommit.undo', async (arg?: any) => {
+    let repoPath: string | undefined;
+    let repoName: string | undefined;
+
+    // 从菜单参数中获取当前仓库（scm/sourceControl/title 会传入 SourceControl 对象）
+    if (arg && arg.rootUri) {
+      const rootPath: string = arg.rootUri.fsPath;
+      repoPath = rootPath;
+      repoName = arg.label || path.basename(rootPath);
     }
 
-    // 优先使用当前活动编辑器所在的工作区，否则取第一个
-    let targetFolder = workspaceFolders[0];
-    const activeEditor = vscode.window.activeTextEditor;
-    if (activeEditor) {
-      const folder = vscode.workspace.getWorkspaceFolder(activeEditor.document.uri);
-      if (folder) {
-        targetFolder = folder;
+    // 回退：使用当前活动编辑器所在的工作区，否则取第一个
+    if (!repoPath) {
+      const workspaceFolders = vscode.workspace.workspaceFolders;
+      if (!workspaceFolders || workspaceFolders.length === 0) {
+        vscode.window.showErrorMessage('没有打开的工作区，无法执行撤销提交。');
+        return;
       }
+      let targetFolder = workspaceFolders[0];
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor) {
+        const folder = vscode.workspace.getWorkspaceFolder(activeEditor.document.uri);
+        if (folder) {
+          targetFolder = folder;
+        }
+      }
+      repoPath = targetFolder.uri.fsPath;
+      repoName = targetFolder.name;
     }
-
-    const repoPath = targetFolder.uri.fsPath;
 
     // 确认用户意图，避免误操作
     const confirm = await vscode.window.showWarningMessage(
-      `确定要撤销工作区「${targetFolder.name}」的上次提交吗？\n改动将保留在暂存区（git reset --soft HEAD~1）`,
+      `确定要撤销仓库「${repoName}」的上次提交吗？\n改动将保留在暂存区（git reset --soft HEAD~1）`,
       { modal: true },
       '确认撤销'
     );
