@@ -9,21 +9,31 @@ async function restoreCommitMessage(repoPath: string, commitMessage: string) {
   try {
     const gitExtension = vscode.extensions.getExtension('vscode.git');
     if (!gitExtension) {
+      console.log('[undoLastCommit] Git extension not found');
       return;
     }
     if (!gitExtension.isActive) {
       await gitExtension.activate();
     }
     const api = gitExtension.exports.getAPI(1);
-    const target = repoPath.toLowerCase();
-    const repo = api.repositories.find(
-      (r: any) => r.rootUri && r.rootUri.fsPath.toLowerCase() === target
-    );
-    if (repo && repo.inputBox) {
-      repo.inputBox.value = commitMessage;
-    }
-  } catch {
-    // Git 扩展 API 不可用时静默跳过
+
+    // 延迟设置：git reset 后 Git 扩展会自动刷新 inputBox，
+    // 需要等它刷新完再写入，否则会被覆盖
+    setTimeout(() => {
+      const target = repoPath.toLowerCase().replace(/\\/g, '/');
+      const repo = api.repositories.find(
+        (r: any) => r.rootUri && r.rootUri.fsPath.toLowerCase().replace(/\\/g, '/') === target
+      );
+      if (repo && repo.inputBox) {
+        repo.inputBox.value = commitMessage;
+        console.log('[undoLastCommit] commit message restored:', commitMessage);
+      } else {
+        console.log('[undoLastCommit] repo not matched. target:', target,
+          'available:', api.repositories.map((r: any) => r.rootUri?.fsPath));
+      }
+    }, 300);
+  } catch (e) {
+    console.log('[undoLastCommit] restore error:', e);
   }
 }
 
