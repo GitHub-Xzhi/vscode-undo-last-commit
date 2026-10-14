@@ -10,7 +10,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -21,17 +23,9 @@
       }
     ],
     "menus": {
-      "scm/sourceControl/title": [
-        {
-          "command": "undoLastCommit.undo",
-          "when": "scmProvider == git",
-          "group": "navigation"
-        }
-      ],
       "scm/title": [
         {
           "command": "undoLastCommit.undo",
-          "when": "scmProvider == git",
           "group": "navigation"
         }
       ]
