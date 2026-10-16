@@ -56,8 +56,11 @@ npm run compile
 ## 📦 打包安装 / Package & Install
 
 ```bash
+# 全局安装vsce打包工具 / Install vsce packaging tool globally
 npm install -g @vscode/vsce
+# 打包为vsix文件（允许缺少仓库信息，不打包依赖） / Package into .vsix (allow missing repo, skip dependencies)
 vsce package --allow-missing-repository --no-dependencies
+# 强制安装扩展到VSCode / Force install the extension to VSCode
 code --install-extension undo-last-commit-0.0.1.vsix --force
 ```
 
