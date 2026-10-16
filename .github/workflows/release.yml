@@ -54,9 +54,10 @@ jobs:
         if: steps.tag.outputs.exists == 'false'
         run: npx @vscode/vsce package --no-dependencies
 
-      - name: 上传 artifact / Upload artifact
+      - name: 创建 GitHub Release 并上传 vsix / Create GitHub Release and upload vsix
         if: steps.tag.outputs.exists == 'false'
-        uses: actions/upload-artifact@v4
+        uses: softprops/action-gh-release@v2
         with:
-          name: undo-last-commit-${{ steps.version.outputs.version }}
-          path: "*.vsix"
+          tag_name: v${{ steps.version.outputs.version }}
+          files: "*.vsix"
+          generate_release_notes: true
