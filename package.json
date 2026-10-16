@@ -4,6 +4,7 @@
   "description": "在源代码管理视图添加「撤销上次提交」按钮，点击后执行 git reset --soft HEAD~1，改动保留在暂存区。",
   "version": "0.0.1",
   "publisher": "xzhi",
+  "icon": "resources/icon.png",
   "engines": {
     "vscode": "^1.74.0"
   },
